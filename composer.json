@@ -1,0 +1,32 @@
+{
+    "name": "artsites/comments",
+    "description": "Comments functionality for Laravel and Nova.",
+    "keywords": [
+        "laravel",
+        "nova",
+        "comments"
+    ],
+    "authors": [
+        {
+            "name": "dprhmk",
+            "email": "dprhmk@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "ArtSites\\Comments\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ArtSites\\Comments\\ServiceProvider"
+            ]
+        }
+    },
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=8.0"
+    }
+}
