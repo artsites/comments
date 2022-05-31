@@ -70,7 +70,13 @@ RECAPTCHA_SECRET_KEY
 
 In `model` that should have comments add trait
 ```sh
-use HasComments;
+use ArtSites\Comments\Models\Traits\HasComments;
+
+class SomeModel extends Model
+{
+  use HasComments;
+  ...
+}
 ```
 
 Add a `$comments` variable to the `controller` that returns the view
