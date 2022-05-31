@@ -1,3 +1,5 @@
+<script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
+
 <div id="comments-container" class="comments-container container">
     <div class="shadow">
         @include('comments::partials.form')

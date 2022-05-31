@@ -8,7 +8,7 @@
             @php
                 $userCookie = isset($_COOKIE['comment-user']) ? json_decode($_COOKIE['comment-user']) : [];
             @endphp
-            @if(!empty($userCookie) && $comment->token == $userCookie->token)
+            @if(!empty($userCookie) && $comment->user_token == $userCookie->token)
                 <form id="delete-comment" data-id="{{ $comment->id }}">
                     @method('DELETE')
                     @csrf

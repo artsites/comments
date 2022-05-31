@@ -1,8 +1,9 @@
 document.addEventListener('DOMContentLoaded', async () => {
     let form = document.querySelector('form#comment-form')
-    if (getJsonCookie()) {
-        form.querySelector('input#name').setAttribute('value', getJsonCookie().name)
-        form.querySelector('input#email').setAttribute('value', getJsonCookie().email)
+    let userCookie = JSON.parse(getCookie('comment-user'));
+    if (userCookie) {
+        form.querySelector('input#name').setAttribute('value', userCookie.name)
+        form.querySelector('input#email').setAttribute('value', userCookie.email)
         deleteCommentEvents()
     }
     createCommentEvent()
@@ -58,29 +59,24 @@ function showMoreEvent() {
             throw new Error(message)
         }
 
-        let commentsView = jsonData.commentsView;
-        if(commentsView) {
+        let commentsViews = jsonData.commentsViews;
+
+        if(commentsViews) {
             let view = document.querySelector('.comments-container div#comments-view')
 
-            let newComments = document.createElement('div');
-            newComments.innerHTML = commentsView;
-            /**
-             * Потрібно видаляти перший <div>
-             */
-            // newComments = newComments.querySelector('div');
+            commentsViews.forEach(commentView => {
+                let newComment = document.createElement('div');
+                newComment.innerHTML = commentView;
+                newComment = newComment.querySelector('div');
 
-            if(getJsonCookie()) {
-                let deleteButtons = newComments.querySelectorAll('form#delete-comment')
-                deleteButtons.forEach(delBtnForm => {
-                    delBtnForm.addEventListener('submit', async event => {
-                        event.preventDefault();
-
-                        await deleteComment(delBtnForm)
-                    })
+                let delBtnForm = newComment?.querySelector('form#delete-comment')
+                delBtnForm?.addEventListener('submit', async event => {
+                    event.preventDefault();
+                    await deleteComment(delBtnForm)
                 })
-            }
 
-            view.insertAdjacentElement('beforeend', newComments)
+                view.insertAdjacentElement('beforeend', newComment)
+            })
 
             let btnShowMore = document.querySelector('.comments-container button#show-more');
             if (jsonData.hasMore === false) btnShowMore.parentElement.remove()
@@ -91,72 +87,80 @@ function showMoreEvent() {
 }
 
 function createCommentEvent() {
-    //create comment
     let lang = document.querySelector('html').getAttribute('lang')
 
     let form = document.querySelector('#comment-form')
 
-    form.addEventListener('submit', async event => {
-        event.preventDefault();
+    grecaptcha.ready(() => {
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
 
-        form.querySelector('button#submit-btn').disabled = true;
+            form.querySelector('button#submit-btn').disabled = true;
 
-        let user = {
-            name: form.querySelector('input#name').value,
-            email: form.querySelector('input#email').value,
-            token: getJsonCookie()?.token ?? token()
-        }
-        setCookie('comment-user', JSON.stringify(user),365);
+            let recaptchaKey = form.dataset.recaptcha_key;
+            let g_recaptcha_token = await grecaptcha.execute(recaptchaKey);
 
-        let action = `/api-comments/create?lang=${lang}`;
-        let formData = Object.fromEntries(new FormData(form));
-        formData.url = location.href;
-        formData.token = user.token
-        formData.model_type = form.dataset.model_type;
-        formData.model_id = form.dataset.model_id;
-        let _token = formData._token;
-        delete formData._token;
+            let userCookie = JSON.parse(getCookie('comment-user'));
 
-        let settings = {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': _token.toString(),
-            },
-            cache: 'no-cache',
-            body: JSON.stringify(formData),
-        };
+            let user = {
+                name: form.querySelector('input#name').value,
+                email: form.querySelector('input#email').value,
+                token: userCookie?.token ?? token()
+            }
+            setCookie('comment-user', JSON.stringify(user),365);
 
-        let response = await fetch(action, settings);
-        let jsonData = await response.json();
+            let action = `/api-comments/create?lang=${lang}`;
+            let formData = Object.fromEntries(new FormData(form));
 
-        if ( ! response.ok) {
+            formData.url = location.href;
+            formData.g_recaptcha_token = g_recaptcha_token
+            formData.user_token = user.token
+            formData.model_type = form.dataset.model_type;
+            formData.model_id = form.dataset.model_id;
+            let _token = formData._token;
+            delete formData._token;
+
+            let settings = {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': _token.toString(),
+                },
+                cache: 'no-cache',
+                body: JSON.stringify(formData),
+            };
+
+            let response = await fetch(action, settings);
+            let jsonData = await response.json();
+
+            if ( ! response.ok) {
+                form.querySelector('button#submit-btn').disabled = false;
+                throw new Error(jsonData.message);
+            }
+
+            form.reset();
+            form.querySelector('input#name').setAttribute('value', user.name)
+            form.querySelector('input#email').setAttribute('value', user.email)
+
+            let commentView = jsonData.commentView;
+            if(commentView) {
+                let newComment = document.createElement('div');
+                newComment.innerHTML = commentView;
+                newComment = newComment.querySelector('div');
+
+                //add delete event
+                newComment.addEventListener('submit', async event => {
+                    event.preventDefault();
+                    let delBtnForm = newComment.querySelector('form#delete-comment')
+                    await deleteComment(delBtnForm, user)
+                })
+
+                document.querySelector('#comments-view').prepend(newComment)
+            }
+
             form.querySelector('button#submit-btn').disabled = false;
-            throw new Error(jsonData.message);
-        }
-
-        form.reset();
-        form.querySelector('input#name').setAttribute('value', user.name)
-        form.querySelector('input#email').setAttribute('value', user.email)
-
-        let commentView = jsonData.commentView;
-        if(commentView) {
-            let newComment = document.createElement('div');
-            newComment.innerHTML = commentView;
-            newComment = newComment.querySelector('div');
-
-            //add delete event
-            newComment.addEventListener('submit', async event => {
-                event.preventDefault();
-                let delBtnForm = newComment.querySelector('form#delete-comment')
-                await deleteComment(delBtnForm, user)
-            })
-
-            document.querySelector('#comments-view').prepend(newComment)
-        }
-
-        form.querySelector('button#submit-btn').disabled = false;
+        });
     });
 }
 
@@ -176,7 +180,7 @@ function deleteCommentEvents() {
 async function deleteComment(delBtnForm) {
     let lang = document.querySelector('html').getAttribute('lang')
 
-    let userCookie = getJsonCookie();
+    let userCookie = JSON.parse(getCookie('comment-user'));
     if(! userCookie?.token) return;
 
     let form = document.querySelector('form#comment-form');
@@ -191,7 +195,7 @@ async function deleteComment(delBtnForm) {
     let action = `/api-comments/delete/${delBtnForm.dataset.id}?lang=${lang}`;
 
     let formData = Object.fromEntries(new FormData(delBtnForm));
-    formData.token = userCookie.token;
+    formData.user_token = userCookie.token;
     let _token = formData._token;
     delete formData._token;
 
@@ -238,10 +242,6 @@ function getCookie(name) {
         if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
     }
     return null;
-}
-
-function getJsonCookie() {
-    return JSON.parse(getCookie('comment-user'))
 }
 
 function removeCookie(name) {

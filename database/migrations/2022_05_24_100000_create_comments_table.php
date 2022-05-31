@@ -10,7 +10,7 @@ class CreateCommentsTable extends Migration
     {
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->string('token', 40);
+            $table->string('user_token', 40);
             $table->morphs('model');
             $table->string('url', 1020);
             $table->string('name', 1020);

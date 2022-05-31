@@ -1,5 +1,9 @@
 <div class="mb-5">
-    <form id="comment-form" data-model_type="{{ get_class($model) }}" data-model_id="{{ $model->id }}" class="w-full p-4">
+    <form id="comment-form"
+          data-recaptcha_key="{{ env('RECAPTCHA_SITE_KEY') }}"
+          class="w-full p-4"
+          data-model_type="{{ get_class($model) }}"
+          data-model_id="{{ $model->id }}">
         @csrf
         <div class="mb-2">
             <div class="mb-3">
@@ -15,6 +19,7 @@
                 <textarea name="text" class="w-full h-20 p-2 border rounded focus:outline-none focus:ring-gray-300 focus:ring-1" required></textarea>
             </div>
         </div>
+
         <button type="submit" id="submit-btn" class="px-3 py-2 text-sm text-blue-100 bg-blue-600 rounded">Comment</button>
     </form>
 </div>

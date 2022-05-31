@@ -2,33 +2,48 @@
 
 namespace ArtSites\Comments\Http\Controllers;
 
-use App\Helpers\Facades\Locale;
 use ArtSites\Comments\Http\Requests\CommentRequest;
 use ArtSites\Comments\Models\Comment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class CommentController
 {
     private int $showMoreCount;
-    private bool $hasMultiDb;
+    private bool $hasMultiDbLangPath;
 
     public function __construct()
     {
         $this->showMoreCount = config('comments.show_more_count') ?? 8;
-        $this->hasMultiDb = config('comments.has_multi_db') !== null ? config('comments.has_multi_db') : false;
+        $this->hasMultiDbLangPath = config('comments.has_multi_db_lang_path') !== null ? config('comments.has_multi_db_lang_path') : false;
+    }
+
+    private function setLocale(string $lang): void
+    {
+        $localeClass = config('comments.locale_class');
+        $setMethod = config('comments.set_method');
+        if(! $localeClass || ! $setMethod) throw new \Exception('Please see https://github.com/artsites/comments#readme');
+        $localeClass::$setMethod($lang);
     }
 
     public function create(CommentRequest $request): JsonResponse
     {
-        if($this->hasMultiDb) {
-            Locale::set($request->lang);
+        if($this->hasMultiDbLangPath) {
+            $this->setLocale($request->lang);
         }
 
-        if( ! ($request->token && $request->url)) return response()->json();
+        $captchaResponse = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret'   => env('RECAPTCHA_SECRET_KEY'),
+            'response' => $request->g_recaptcha_token,
+        ])->json();
+
+        if( ! $captchaResponse['success']) throw new \Exception('Captcha error!');
+
+        if( ! ($request->user_token && $request->url)) return response()->json();
 
         $comment = Comment::query()->create([
-            'token' => $request->token,
+            'user_token' => $request->user_token,
             'model_type' => $request->model_type,
             'model_id' => $request->model_id,
             'url' => $request->url,
@@ -48,15 +63,15 @@ class CommentController
 
     public function delete(Request $request): JsonResponse
     {
-        if($this->hasMultiDb) {
-            Locale::set($request->lang);
+        if($this->hasMultiDbLangPath) {
+            $this->setLocale($request->lang);
         }
 
         $userCookie = isset($_COOKIE['comment-user']) ? json_decode($_COOKIE['comment-user']) : null;
-        if($request->id && $request->token && $userCookie?->token == $request->token) {
+        if($request->id && $request->user_token && $userCookie?->token == $request->user_token) {
             $comment = Comment::query()
                 ->where('id', $request->id)
-                ->where('token', $request->token)
+                ->where('user_token', $request->user_token)
                 ->first();
             $comment?->delete();
         }
@@ -65,8 +80,8 @@ class CommentController
 
     public function showMore(Request $request): JsonResponse
     {
-        if($this->hasMultiDb) {
-            Locale::set($request->lang);
+        if($this->hasMultiDbLangPath) {
+            $this->setLocale($request->lang);
         }
 
         $comments = Comment::query()
@@ -77,9 +92,11 @@ class CommentController
             ->take($this->showMoreCount)
             ->get();
 
-        $commentsView = View('comments::partials.items-loop', [
-            'comments' => $comments,
-        ])->render();
+        foreach ($comments as $comment) {
+            $commentsViews[] = View('comments::partials.item', [
+                'comment' => $comment,
+            ])->render();
+        }
 
         $hasMore = false;
         if($comments->isNotEmpty()) {
@@ -92,15 +109,15 @@ class CommentController
         }
 
         return response()->json([
-            'commentsView' => $commentsView,
+            'commentsViews' => $commentsViews,
             'hasMore' => $hasMore,
         ]);
     }
 
     public function hasMore(Request $request): JsonResponse
     {
-        if($this->hasMultiDb) {
-            Locale::set($request->lang);
+        if($this->hasMultiDbLangPath) {
+            $this->setLocale($request->lang);
         }
 
         $hasMore = false;

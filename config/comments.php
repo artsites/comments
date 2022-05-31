@@ -3,6 +3,12 @@
 /** Config for github.com/artsites/comments */
 
 return [
-    'show_more_count' => 8,     //comments count when click on show more button
-    'has_multi_db' => false      //for projects which has translated databases
+    //comments count when click show more button
+    'show_more_count' => 8,
+
+    //for projects which has translated databases with lang path
+    'has_multi_db_lang_path' => false,
+    'locale_class' => \App\Helpers\Facades\Locale::class,
+    'set_method' => 'set',
+    //********************************************************//
 ];

@@ -32,12 +32,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             __DIR__.'/../config' => config_path()
         ], 'config');
 
-//        $this->publishes([
-//            __DIR__.'/Models/Comment.php' => app_path('/Models/Comment.php'),
-//        ], 'model');
-
-//        $this->publishes([
-//            __DIR__.'/Nova/Comment.php' => app_path('/Nova/Comment.php'),
-//        ], 'nova-resource');
+        $this->publishes([
+            __DIR__.'/Nova/Comment.php' => app_path('/Nova/Comment.php'),
+        ], 'nova-resource');
     }
 }

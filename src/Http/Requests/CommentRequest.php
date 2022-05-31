@@ -30,6 +30,7 @@ class CommentRequest extends FormRequest
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'text' => 'required|string|max:65532',
+            'g_recaptcha_token' => 'required|string',
         ];
     }
 }
