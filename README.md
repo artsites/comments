@@ -37,6 +37,22 @@ For projects which has translated databases with lang path please fill next:
 `locale_class`,
 `set_method`
 
+### HTML
+If you're using multi lang path,
+for example:
+`example.com/something`, `example.com/ua/something`, `example.com/tr/something`,
+make sure that your html tag has correct lang attribute
+```html
+<html lang="en">
+    or
+<html lang="ua">
+    or
+<html lang="tr">
+
+    ...
+</html>
+```
+
 ### ENV
 This package use Google reCAPTCHA V3
 
