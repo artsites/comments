@@ -27,7 +27,7 @@ Don't forget replace namespace
 php artisan vendor:publish --provider="ArtSites\Comments\ServiceProvider" --tag="views"
 ```
 
-###Config
+### Config
 Path `/config/comments.php`
 
 `show_more_count` - comments count when click show more button
