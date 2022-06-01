@@ -40,7 +40,7 @@ async function isShowMore() {
 function showMoreEvent() {
     let lang = document.querySelector('html').getAttribute('lang')
 
-    let button = document.querySelector('.comments-container button#show-more');
+    let button = document.querySelector('#comments-container button#show-more');
     button.addEventListener('click', async event => {
         event.preventDefault();
 
@@ -62,7 +62,7 @@ function showMoreEvent() {
         let commentsViews = jsonData.commentsViews;
 
         if(commentsViews) {
-            let view = document.querySelector('.comments-container div#comments-view')
+            let view = document.querySelector('#comments-container div#comments-view')
 
             commentsViews.forEach(commentView => {
                 let newComment = document.createElement('div');
@@ -78,7 +78,7 @@ function showMoreEvent() {
                 view.insertAdjacentElement('beforeend', newComment)
             })
 
-            let btnShowMore = document.querySelector('.comments-container button#show-more');
+            let btnShowMore = document.querySelector('#comments-container button#show-more');
             if (jsonData.hasMore === false) btnShowMore.parentElement.remove()
         }
 

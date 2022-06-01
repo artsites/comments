@@ -2,6 +2,7 @@
 
 namespace ArtSites\Comments\Http\Controllers;
 
+use ArtSites\Comments\CommentService;
 use ArtSites\Comments\Http\Requests\CommentRequest;
 use ArtSites\Comments\Models\Comment;
 use Illuminate\Http\JsonResponse;
@@ -27,7 +28,7 @@ class CommentController
         $localeClass::$setMethod($lang);
     }
 
-    public function create(CommentRequest $request): JsonResponse
+    public function create(CommentRequest $request, CommentService $commentService): JsonResponse
     {
         if($this->hasMultiDbLangPath) {
             $this->setLocale($request->lang);
@@ -38,9 +39,12 @@ class CommentController
             'response' => $request->g_recaptcha_token,
         ])->json();
 
-        if( ! $captchaResponse['success']) throw new \Exception('Captcha error!');
+        if( ! $captchaResponse['success']) throw new \Exception('Captcha error! '.json_encode($captchaResponse));
 
         if( ! ($request->user_token && $request->url)) return response()->json();
+
+        $text = $commentService->validateText($request->text);
+        if(blank($text)) return response()->json();
 
         $comment = Comment::query()->create([
             'user_token' => $request->user_token,
@@ -49,7 +53,7 @@ class CommentController
             'url' => $request->url,
             'name' => $request->name,
             'email' => $request->email,
-            'text' => $request->text,
+            'text' => $text,
         ]);
 
         $commentView = View('comments::partials.item', [
