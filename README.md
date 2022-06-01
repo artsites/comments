@@ -81,12 +81,18 @@ class SomeModel extends Model
 
 Add a `$comments` variable to the `controller` that returns the view
 ```sh
-$model = Model::all();
+$model = Model::first();
 
 return view('***', [
     ...
+    'model' => $model,
     'comments' => $model->comments()->take(8)->get(),
 ]);
+```
+
+For adding template on view, you need add:
+```sh
+@include('comments::layout', ['comments' => $comments, 'model' => $model])
 ```
 
 And the final touch, add `HasMany` relation to Nova `resource`
