@@ -4,7 +4,7 @@
     </div>
     <div class="flex-1 flex flex-col justify-center md:justify-start">
         <div class="flex justify-between">
-            <p class="font-semibold text-2xl">{{ $comment->name }}</p>
+            <p id="comment-name" class="font-semibold text-2xl">{{ $comment->name }}</p>
             @php
                 $userCookie = isset($_COOKIE['comment-user']) ? json_decode($_COOKIE['comment-user']) : [];
             @endphp
@@ -19,8 +19,12 @@
         <p class="pt-2">{{ $comment->text }}</p>
         <div class="flex items-center justify-center md:justify-start text-2xl no-underline text-blue-800 pt-4">
         </div>
-        <p class="text-sm pb-8 ">
-            {{ $comment->created_at->format('d.m.Y H:i') }}
-        </p>
+        <div class="flex justify-start">
+            <p class="text-sm pb-8">
+                {{ $comment->created_at->format('d.m.Y H:i') }}
+            </p>
+
+            <a id="reply-btn" href="" class="text-sm pb-8 ml-2">Ответить</a>
+        </div>
     </div>
 </div>

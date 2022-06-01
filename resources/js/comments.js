@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         form.querySelector('input#email').setAttribute('value', userCookie.email)
         deleteCommentEvents()
     }
+    replyEvent()
     createCommentEvent()
     if(await isShowMore()) showMoreEvent()
 })
@@ -69,10 +70,18 @@ function showMoreEvent() {
                 newComment.innerHTML = commentView;
                 newComment = newComment.querySelector('div');
 
+                //add delete event
                 let delBtnForm = newComment?.querySelector('form#delete-comment')
                 delBtnForm?.addEventListener('submit', async event => {
                     event.preventDefault();
                     await deleteComment(delBtnForm)
+                })
+
+                //add reply event
+                let replyBtn = newComment.querySelector('#reply-btn');
+                replyBtn.addEventListener('click', event => {
+                    event.preventDefault();
+                    reply(newComment);
                 })
 
                 view.insertAdjacentElement('beforeend', newComment)
@@ -156,6 +165,13 @@ function createCommentEvent() {
                     await deleteComment(delBtnForm, user)
                 })
 
+                //add reply event
+                let replyBtn = newComment.querySelector('#reply-btn');
+                replyBtn.addEventListener('click', event => {
+                    event.preventDefault();
+                    reply(newComment);
+                })
+
                 document.querySelector('#comments-view').prepend(newComment)
             }
 
@@ -221,6 +237,32 @@ async function deleteComment(delBtnForm) {
         throw new Error(jsonData.message);
     }
     delBtnForm.closest('div#comment-body').remove();
+}
+
+//call once on load
+function replyEvent() {
+    let comments = document.querySelectorAll('#comments-view #comment-body')
+
+    comments.forEach(comment => {
+        let replyBtn = comment.querySelector('#reply-btn');
+        replyBtn.addEventListener('click', event => {
+            event.preventDefault();
+
+            reply(comment)
+        })
+    })
+}
+
+function reply(comment) {
+    let name = comment.querySelector('#comment-name').innerText
+
+    let textarea = document.querySelector('#comments-container #comment-form textarea')
+    textarea.scrollIntoView({behavior: 'smooth', block: 'center'})
+    textarea.value = `@${name} `
+    setTimeout(() => {
+        textarea.focus()
+        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    }, 500)
 }
 
 function setCookie(name,value,days) {
