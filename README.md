@@ -25,11 +25,12 @@ php artisan vendor:publish --provider="ArtSites\Comments\ServiceProvider" --tag=
 
 > Also, you can publish nova resource to `/app/Nova/Comment.php` for adding new features fields
 
-> **Warning**
-> Don't forget replace namespace
 ```sh
 php artisan vendor:publish --provider="ArtSites\Comments\ServiceProvider" --tag="nova-resource"
 ```
+
+> **Warning**
+> Don't forget replace namespace
 
 ### Config
 > Path `/config/comments.php`
