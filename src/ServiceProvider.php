@@ -2,7 +2,9 @@
 
 namespace ArtSites\Comments;
 
-use ArtSites\Comments\Nova\Comment;
+use ArtSites\Comments\Nova\Comment as CommentResource;
+use ArtSites\Comments\Models\Comment;
+use ArtSites\Comments\Observers\CommentObserver;
 use Laravel\Nova\Nova;
 
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
@@ -14,7 +16,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
     public function boot()
     {
-        Nova::resources([Comment::class]);
+        Nova::resources([CommentResource::class]);
+        Comment::observe(CommentObserver::class);
 
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'comments');
