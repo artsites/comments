@@ -17,7 +17,7 @@ class Comment extends \App\Nova\Resource
     public static $title = 'name';
 
     public static $search = [
-        'content', 'key'
+        'name', 'text'
     ];
 
     public function fields(Request $request)
