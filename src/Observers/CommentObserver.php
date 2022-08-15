@@ -11,4 +11,14 @@ class CommentObserver
     {
         $comment->uuid = Str::uuid();
     }
+
+    public function updated(Comment $comment): void
+    {
+        $comment->model->touch();
+    }
+
+    public function deleted(Comment $comment): void
+    {
+        $comment->model->touch();
+    }
 }
