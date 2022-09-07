@@ -12,7 +12,7 @@ class Comment extends \App\Nova\Resource
 {
     public static string $model = \ArtSites\Comments\Models\Comment::class;
 
-    public static int $perPageViaRelationship = 25;
+    public static $perPageViaRelationship = 25;
 
     public static $title = 'name';
 
