@@ -154,6 +154,8 @@ function createCommentEvent() {
 
             let commentView = jsonData.commentView;
             if(commentView) {
+                let commentsView = document.querySelector('#comments-view')
+
                 let newComment = document.createElement('div');
                 newComment.innerHTML = commentView;
                 newComment = newComment.querySelector('div');
@@ -172,7 +174,9 @@ function createCommentEvent() {
                     reply(newComment);
                 })
 
-                document.querySelector('#comments-view').prepend(newComment)
+                commentsView.prepend(newComment)
+
+                window.scroll(0, commentsView.offsetTop - 130)
             }
 
             form.querySelector('button#submit-btn').disabled = false;

@@ -10,10 +10,6 @@ class CommentObserver
     public function creating(Comment $comment)
     {
         $comment->uuid = Str::uuid();
-    }
-
-    public function updated(Comment $comment): void
-    {
         $comment->model->touch();
     }
 
