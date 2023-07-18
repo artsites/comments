@@ -9,8 +9,7 @@ class CreateCommentsTable extends Migration
     public function up()
     {
         Schema::create('comments', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid');
+            $table->bigIncrements('id');
             $table->string('user_token', 40);
             $table->morphs('model');
             $table->string('url', 1020);

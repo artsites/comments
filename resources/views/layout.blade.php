@@ -1,12 +1,12 @@
 <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
 
-<div id="comments-container" class="container">
-    <div class="shadow">
+<div class="comments-container">
+    <div>
         @include('comments::partials.form')
-        <div id="comments-view">
+        <div class="comments-view">
             @include('comments::partials.items-loop')
         </div>
     </div>
 </div>
 
-<script src="/vendor/comments/comments.js" defer></script>
+<script src="/vendor/comments/js/app.js" defer></script>

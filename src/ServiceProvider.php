@@ -28,7 +28,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         ], 'views');
 
         $this->publishes([
-            __DIR__.'/../resources/js' => public_path('/vendor/comments'),
+            __DIR__.'/../public/assets/js/' => public_path('/vendor/comments/js/'),
         ], 'js');
 
         $this->publishes([

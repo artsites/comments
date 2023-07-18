@@ -1,30 +1,23 @@
-<div id="comment-body" class="w-full flex flex-col text-center md:text-left md:flex-row bg-white border-t-2 p-2">
-    <div class="w-full md:w-1/5 flex justify-center md:justify-start pb-4">
-        <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460__480.png" class="rounded-full shadow h-32 w-32">
-    </div>
-    <div class="flex-1 flex flex-col justify-center md:justify-start">
-        <div class="flex justify-between">
-            <p id="comment-name" class="font-semibold text-2xl">{{ $comment->name }}</p>
+<div class="comment-body">
+    <div>
+        <div>
+            <p class="comment-name">{{ $comment->name }}</p>
             @php
                 $userCookie = isset($_COOKIE['comment-user']) ? json_decode($_COOKIE['comment-user']) : [];
             @endphp
             @if(!empty($userCookie) && $comment->user_token == $userCookie->token)
-                <form id="delete-comment" data-id="{{ $comment->id }}">
+                <form class="delete-comment-form" data-id="{{ $comment->id }}">
                     @method('DELETE')
-                    @csrf
-                    <button type="submit" id="delete-btn" class="fas fa-times"></button>
+                    <button type="submit" class="delete-btn" style="cursor: pointer">Удалить</button>
                 </form>
             @endif
         </div>
-        <p class="pt-2">{{ $comment->text }}</p>
-        <div class="flex items-center justify-center md:justify-start text-2xl no-underline text-blue-800 pt-4">
-        </div>
-        <div class="flex justify-start">
-            <p class="text-sm pb-8">
+        <p>{{ $comment->text }}</p>
+        <div>
+            <p>
                 {{ $comment->created_at->format('d.m.Y H:i') }}
             </p>
-
-            <a id="reply-btn" href="" class="text-sm pb-8 ml-2">Ответить</a>
+            <p class="reply-btn" style="cursor: pointer">Ответить</p>
         </div>
     </div>
 </div>
